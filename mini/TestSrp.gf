@@ -1,5 +1,7 @@
 concrete TestEng of Test = GrammarEng ** open ResEng in {
 
+-- Need to change this to Serbian
+
 lin 
   man_N = mkN "man" "men" ;
   woman_N = mkN "woman" "women" ;
