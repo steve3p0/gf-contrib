@@ -1,6 +1,6 @@
 concrete TestEng of Test = GrammarEng ** open ResEng in {
 
--- Need to change this to Serbian
+-- Need to change this to Serbian - test
 
 lin 
   man_N = mkN "man" "men" ;
