@@ -1,4 +1,4 @@
-resource MiniResEng = open Prelude in {
+resource MiniResSrp = open Prelude in {
 
 param
   Number = Sg | Pl ;

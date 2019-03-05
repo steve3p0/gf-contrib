@@ -1,4 +1,4 @@
-concrete MiniGrammarEng of MiniGrammar = open MiniResEng, Prelude in {
+concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
 
 
   lincat
@@ -36,11 +36,11 @@ concrete MiniGrammarEng of MiniGrammar = open MiniResEng, Prelude in {
 	    <True, Agr Sg Per1,_> => vp.verb.s ! PresSg1 ;
 	    <True, Agr Sg Per3,_> => vp.verb.s ! VF PresSg3 ;
 	    <True, _          ,_> => vp.verb.s ! PresPl ;
-	    <False, Agr Sg Per1,True>  => vp.verb.s ! PresSg1 ++ "not" ;
-	    <False, Agr Sg Per3,True>  => vp.verb.s ! VF PresSg3 ++ "not" ;
-	    <False, _          ,True>  => vp.verb.s ! PresPl ++ "not" ;
-	    <False, Agr Sg Per3,False> => "does not" ++ vp.verb.s ! VF Inf ;
-	    <False, _          ,False> => "do not" ++ vp.verb.s ! VF Inf
+	    <False, Agr Sg Per1,True>  => vp.verb.s ! PresSg1 ++ "не" ;
+	    <False, Agr Sg Per3,True>  => vp.verb.s ! VF PresSg3 ++ "не" ;
+	    <False, _          ,True>  => vp.verb.s ! PresPl ++ "не" ;
+	    <False, Agr Sg Per3,False> => "не" ++ vp.verb.s ! VF Inf ;
+	    <False, _          ,False> => "не" ++ vp.verb.s ! VF Inf
 	    }
         ++ vp.compl ;
       } ;
@@ -74,10 +74,10 @@ concrete MiniGrammarEng of MiniGrammar = open MiniResEng, Prelude in {
       s = \\_ => cn.s ! Sg ;
       a = Agr Sg Per3
       } ;
-    a_Det = {s = "a" ; n = Sg} ;
+    a_Det = {s = "" ; n = Sg} ;
     aPl_Det = {s = "" ; n = Pl} ;
-    the_Det = {s = "the" ; n = Sg} ;
-    thePl_Det = {s = "the" ; n = Pl} ;
+    the_Det = {s = "" ; n = Sg} ;
+    thePl_Det = {s = "" ; n = Pl} ;
     UseN n =
       n ;
     AdjCN ap cn = {
@@ -93,41 +93,42 @@ concrete MiniGrammarEng of MiniGrammar = open MiniResEng, Prelude in {
     PPos  = {s = [] ; b = True} ;
     PNeg  = {s = [] ; b = False} ;
 
-    and_Conj = {s = "and"} ;
-    or_Conj = {s = "or"} ;
+    and_Conj = {s = "и"} ;
+    or_Conj = {s = "или"} ;
 
-    every_Det = {s = "every" ; n = Sg} ;
+    every_Det = {s = "свака" ; n = Sg} ;
 
-    in_Prep = {s = "in"} ;
-    on_Prep = {s = "on"} ;
-    with_Prep = {s = "with"} ;
+    in_Prep = {s = "у"} ;
+    on_Prep = {s = "на"} ;
+    with_Prep = {s = "са"} ;
 
     i_Pron = {
-      s = table {Nom => "I" ; Acc => "me"} ;
+      s = table {Nom => "ја" ; Acc => "ме"} ;
       a = Agr Sg Per1
       } ;
     youSg_Pron = {
+	  s = table {Nom => "ти" ; Acc => "те"} ;
       s = \\_ => "you" ;
       a = Agr Sg Per2
       } ;
     he_Pron = {
-      s = table {Nom => "he" ; Acc => "him"} ;
+      s = table {Nom => "он" ; Acc => "га"} ;
       a = Agr Sg Per3
       } ;
     she_Pron = {
-      s = table {Nom => "she" ; Acc => "her"} ;
+      s = table {Nom => "she" ; Acc => "je"} ;
       a = Agr Sg Per3
       } ;
     we_Pron = {
-      s = table {Nom => "we" ; Acc => "us"} ;
+      s = table {Nom => "ми" ; Acc => "нас"} ;
       a = Agr Pl Per1
       } ;
     youPl_Pron = {
-      s = \\_ => "you" ;
+	  s = table {Nom => "ви" ; Acc => "вама"} ;
       a = Agr Pl Per2
       } ;
     they_Pron = {
-      s = table {Nom => "they" ; Acc => "them"} ;
+      s = table {Nom => "они" ; Acc => "them"} ;
       a = Agr Pl Per2
       } ;
 
