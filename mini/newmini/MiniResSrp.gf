@@ -1,99 +1,243 @@
 resource MiniResSrp = open Prelude in {
 
-param
-  Number = Sg | Pl ;
-  Case = Nom | Acc ;
-  Person = Per1 | Per2 | Per3 ;
+  param
+    Gender = Masc | Fem ;
+    Number = Sg | Pl ;
+    Case   = Nom | Acc ;
+    Person = Per1 | Per2 | Per3 ;
 
-  Agreement = Agr Number Person ;
+    Agreement = Agr Gender Number Person ;
+    ClitAgr   = CAgrNo | CAgr Agreement ;
 
-  VForm = Inf | PresSg3 ;
+    VForm = VInf | VPres Number Person ;
 
-oper
-  Noun : Type = {s : Number => Str} ;
+  oper
+    genNumStr : Type = Gender => Number => Str ;
+    
+    ---
+    -- Noun
+    NP = {
+      s : Case => {clit,obj : Str ; isClit : Bool} ;
+      a : Agreement
+      } ;
 
-  mkNoun : Str -> Str -> Noun = \sg,pl -> {
-    s = table {Sg => sg ; Pl => pl}
-    } ;
+    Noun : Type = {s : Number => Str ; g : Gender} ;
 
-  regNoun : Str -> Noun = \sg -> mkNoun sg (sg + "s") ;
+    mkNoun : Str -> Str -> Gender -> Noun = \sg,pl,g -> {
+      s = table {Sg => sg ; Pl => pl} ;
+      g = g
+      } ;
 
-  -- smart paradigm
-  smartNoun : Str -> Noun = \sg -> case sg of {
-    _ + ("ay"|"ey"|"oy"|"uy") => regNoun sg ;
-    x + "y" => mkNoun sg (x + "ies") ;
-    _ + ("ch"|"sh"|"s"|"o") => mkNoun sg (sg + "es") ;
-    _       => regNoun sg
-    } ;
+    regNoun : Str -> Gender -> Noun = \sg,g -> mkNoun sg (sg + "s") g;
 
-  mkN = overload {
-   mkN : Str -> Noun = smartNoun ;
-   mkN : Str -> Str -> Noun = mkNoun ;
-   } ;
+    -- smart paradigms
+    smartGenNoun : Str -> Gender -> Noun = \vinho,g -> case vinho of {
+      rapa + z@("z"|"r"|"s")           =>
+        mkNoun vinho (vinho + "es") g ; -- rapaz/Masc, flor/Fem
+      can  + v@("a"|"e"|"o"|"u") + "l" =>
+        mkNoun vinho (can + v + "is") g ; -- canal/Masc, vogal/Fem
+      home  + "m"  => mkNoun vinho (home + "ns") g ; -- homem/Masc,
+                                                     -- nuvem/nuvens
+      tóra + "x"                       =>
+        mkNoun vinho vinho g ; -- tórax/Masc, xerox/Fem
+      _                                =>
+        regNoun vinho g
+      } ;
 
-  ProperName : Type = {s : Str} ;
+    smartNoun : Str -> Noun = \vinho -> case vinho of {
+      cas   + "a"  => regNoun vinho Fem ;
+      vinh  + "o"  => regNoun vinho Masc ;
+      falc  + "ão" =>
+        mkNoun vinho (falc + "ões") Masc ; -- other rules depend on
+                                           -- stress, can this be
+                                           -- built with gf?
+      artes + "ã"  => regNoun vinho Fem ;
+      líque + "n"  => regNoun vinho Masc ;
+      obu  + "s"   => mkNoun vinho (vinho + "es") Masc ;
+      can  + "il"  =>
+        mkNoun vinho (can + "is") Masc ; -- what about fóssil?
+      _           => smartGenNoun vinho Masc
+      } ;
 
-  mkPN : Str -> ProperName = \s -> {s = s} ;
+    mkN = overload {
+      mkN : Str -> Noun                     = smartNoun ;
+      mkN : Str -> Gender -> Noun           = smartGenNoun ;
+      mkN : Str -> Str    -> Gender -> Noun = mkNoun ;
+      } ;
 
-  Adjective : Type = {s : Str} ;
+    ProperName : Type = {s : Str ; g : Gender} ;
 
-  mkA : Str -> Adjective = \s -> {s = s} ;
+    mkPN : Str -> Gender -> ProperName = \s,g -> {s = s ; g = g} ;
+    -- Pron
+    Pron : Type = {s : Case => Str ; a : Agreement} ;
 
-  Verb : Type = {s : VForm => Str} ;
+    iMasc_Pron : Pron = {
+      s = table {Nom => "ја" ; Acc => "ме"} ;
+      a = Agr Masc Sg Per1
+      } ;
 
-  mkVerb : (inf,pres : Str) -> Verb = \inf,pres -> {
-    s = table {
-      Inf => inf ;
-      PresSg3 => pres
-      }
-    } ;
+    youMascSg_Pron : Pron = {
+      s = table {Nom => "ти" ; Acc => "те"} ;
+      a = Agr Masc Sg Per2
+      } ;
 
-  smartVerb : Str -> Verb = \inf ->
-     mkVerb inf ((mkN inf).s ! Pl) ;
- 
-  mkV = overload {
-    mkV : Str -> Verb = smartVerb ;
-    mkV : (inf,pres : Str) -> Verb = mkVerb ;
-    } ;
+    weMasc_Pron : Pron = {
+      s = table {Nom => "ми" ; Acc => "нас"} ;
+      a = Agr Masc Pl Per1
+      };
 
-  Verb2 : Type = Verb ** {c : Str} ;
+    youMascPl_Pron : Pron = {
+      s = table {Nom => "ви" ; Acc => "вас"} ;
+      a = Agr Masc Pl Per2
+      } ;
 
-  mkV2 = overload {
-    mkV2 : Str         -> Verb2 = \s   -> mkV s ** {c = []} ;
-    mkV2 : Str  -> Str -> Verb2 = \s,p -> mkV s ** {c = p} ;
-    mkV2 : Verb        -> Verb2 = \v   -> v ** {c = []} ;
-    mkV2 : Verb -> Str -> Verb2 = \v,p -> v ** {c = p} ;
-    } ;
+    genderPron : Gender -> Pron -> Pron ;
+    genderPron g pr = case pr.a of {
+      (Agr _ n pe) => {s = pr.s ; a = Agr g n pe}
+      } ;
 
-  Adverb : Type = {s : Str} ;
+    employNP : Case -> NP -> Str = \c,np ->
+      let nps = np.s ! c in case nps.isClit of {
+        True => nps.clit ;
+        _    => nps.obj
+      } ;
 
-  mkAdv : Str -> Adverb = \s -> {s = s} ;
+    ---
+    -- Adjective
+    Adjective : Type = {s : genNumStr ; isPre : Bool} ;
 
-  be_GVerb : GVerb = {
-     s = table {
-       PresSg1 => "am" ;
-       PresPl  => "are" ;
-       VF vf   => (mkVerb "be" "is").s ! vf
-       } ;
-     isAux = True
-     } ;
+    mkAdjective : (_,_,_,_ : Str) -> Bool -> Adjective = \bom,boa,bons,boas,p -> {
+      s = table {
+        Masc => table {Sg => bom ; Pl => bons} ;
+        Fem  => table {Sg => boa ; Pl => boas}
+        } ;
+      isPre = p
+      } ;
 
-  GVerb : Type = {
-     s : GVForm => Str ;
-     isAux : Bool
-     } ;
+    regAdjective : Str -> Adjective = \preto -> case preto of {
+      pret + "o" =>
+        mkAdjective preto (pret + "a") (preto + "s") (pret + "as") False ;
+      pret + "e" =>
+        mkAdjective preto preto (preto + "s") (preto + "s") False ;
+      _          => mkAdjective preto preto preto preto False
+      } ;
 
- param
-   GVForm = VF VForm | PresSg1 | PresPl ;
+    preAdjective : Str -> Bool -> Adjective = \preto,b ->
+      let pretoA = regAdjective preto in
+      case b of {
+        True => preA pretoA ;
+        _    => pretoA
+      } ;
 
- oper
-   verb2gverb : Verb -> GVerb = \v -> {s =
-     table {
-       PresSg1 => v.s ! Inf ;
-       PresPl  => v.s ! Inf ;
-       VF vf   => v.s ! vf
-       } ;
-     isAux = False
-     } ;
+    mkA = overload {
+      mkA : Str             -> Adjective         = regAdjective ;
+      mkA : Str             -> Bool -> Adjective = preAdjective ;
+      mkA : (_,_,_,_ : Str) -> Bool -> Adjective = mkAdjective ;
+      } ;
+
+    preA : Adjective -> Adjective
+      = \a -> {s = a.s ; isPre = True} ;
+
+    ---
+    -- Verb
+    VP = {
+      verb : Verb ;
+      clit : Str ;
+      clitAgr : ClitAgr ;
+      compl : Agreement => Str ;
+      } ;
+
+    Verb : Type = {s : VForm => Str } ;
+
+    agrV : Verb -> Agreement -> Str = \v,a -> case a of {
+      Agr _ n p => v.s ! VPres n p
+      } ;
+
+    neg : Bool -> Str = \b -> case b of {True => [] ; False => "не"} ;
+
+    biti_V = mkV "бити" "сам" "си" "је" "смо" "сте" "су" ;
+    --estar_V = mkV "estar" "estou" "está" "estamos" "estão" ;
+
+    mkVerb : (_,_,_,_,_,_,_ : Str) -> Verb =
+      --\amar,amo,ama,ama,amam,amamos,amam -> {
+      \voleti,volim,volis,voli,volite,volimo,vole -> {
+      s = table {
+           VInf     => voleti ;
+           VPres Sg Per1 => volim ;
+           VPres Sg Per2 => volis ;
+           VPres Sg Per3 => voli ;
+           VPres Pl Per1 => volite ;
+           VPres Pl Per2 => volimo ;
+           VPres Pl Per3 => vole
+        -- VInf     => amar ;
+        -- VPres Sg Per1 => amo ;
+        -- VPres Sg Per2 => ama ;
+        -- VPres Sg Per3 => ama ;
+        -- VPres Pl Per1 => amam ;
+        -- VPres Pl Per2 => amamos ;
+        -- VPres Pl Per3 => amam
+        } ;
+      } ;
+
+    smartVerb : Str -> Verb = \inf -> case inf of {
+      part + v@("ати")       => mkVerb inf (part+"ам") (part+"аш") (part+"а") (part+"амо") (part+v+"ате") (part+"ају") ;
+      part + v@("ети"|"ити") => mkVerb inf (part+"им") (part+"иш") (part+"и") (part+"имо") (part+v+"ите") (part+"е") ;
+      _ => mkVerb inf inf inf inf inf inf inf
+      } ;
+
+    mkV = overload {
+      mkV : Str -> Verb = smartVerb ;
+      mkV : (_,_,_,_,_,_,_ : Str) -> Verb = mkVerb ;
+      } ;
+
+    Verb2 : Type = Verb ** {c : Case ; p : Str} ;
+
+    mkV2 = overload {
+      mkV2 : Str -> Verb2 =
+        \s   -> mkV s ** {c = Nom ; p = []} ;
+      mkV2 : Str -> Case -> Verb2 =
+        \s,c -> mkV s ** {c = c ; p = []} ;
+      mkV2 : Str -> Str -> Verb2 =
+        \s,p -> mkV s ** {c = Nom ; p = p} ;
+      mkV2 : Str  -> Case -> Str -> Verb2 =
+        \s,c,p -> mkV s ** {c = c ; p = p} ;
+      mkV2 : Verb -> Verb2 =
+        \v -> v ** {c = Nom ; p = []} ;
+      mkV2 : Verb -> Case -> Verb2 =
+        \v,c -> v ** {c = c ; p = []} ;
+      mkV2 : Verb -> Str -> Verb2 =
+        \v,p -> v ** {c = Nom ; p = p} ;
+      mkV2 : Verb -> Case -> Str -> Verb2 =
+        \v,c,p -> v ** {c = c ; p = p} ;
+      } ;
+
+    ---
+    -- Adverb
+    Adverb : Type = {s : Str} ;
+
+    mkAdv : Str -> Adverb = \s -> {s = s} ;
+
+    ---
+    -- Det
+    -- [ ] is this ok por port?
+    adjDet : Adjective -> Number -> {s : Gender => Case => Str ; n : Number} =
+      \adj,n -> {
+        s = \\g,c => adj.s ! g ! n ;
+        n = n
+      } ;
+    ---
+    -- Prep
+    --Prep : Type = {s : genNumStr } ;
+    -- no_Prep : Prep = { s = table {
+    --                      Masc => table {
+    --                        Sg => "no" ;
+    --                        Pl => "nos"
+    --                        } ;
+    --                      Fem => table {
+    --                        Sg => "na" ;
+    --                        Pl => "nas"
+    --                        }
+    --                      } ;
+    --   } ;
 
 }
