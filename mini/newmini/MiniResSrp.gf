@@ -227,7 +227,7 @@ resource MiniResSrp = open Prelude in {
       } ;
     ---
     -- Prep
-    --Prep : Type = {s : genNumStr } ;
+    Prep : Type = {s : genNumStr } ;
     -- no_Prep : Prep = { s = table {
     --                      Masc => table {
     --                        Sg => "no" ;

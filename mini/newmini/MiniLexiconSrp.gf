@@ -1,15 +1,15 @@
 concrete MiniLexiconSrp of MiniLexicon = MiniGrammarSrp ** open MiniResSrp in 
 {    
 	-- Proper Nouns
-	lin john_PN = mkPN "Јован" ;
-	lin paris_PN = mkPN "Парис" ;
+	lin john_PN = mkPN "Јован" Masc;
+	lin paris_PN = mkPN "Парис" Masc;
 
 	-- Adverbs
 	lin already_Adv = mkAdv "already" ;
 	lin now_Adv = mkAdv "сада" ;
 
 	-- Verbs (V)
-	lin come_V = mkV "доћи" ;
+	lin come_V = mkV "доћи" ; 
 	lin go_V = mkV "иди" ;
 	lin jump_V = mkV "скочити" ;
 	lin live_V = mkV "живети" ;
@@ -21,7 +21,10 @@ concrete MiniLexiconSrp of MiniLexicon = MiniGrammarSrp ** open MiniResSrp in
 	lin walk_V = mkV "ходати" ;
 
 	-- Verbs (V2)
-	lin read_V2 = mkV2 "читати" ;
+	--                        inf      P1S     P2S    P3S     P1P      P2P      P3P
+  --lin read_V2 = mkV2 (mkV "читати" "читам" "читаш" "чита" "читамо" "читате" "читају");
+  --lin read_V2 = mkV2 (mkV "читати" "читам" "читаш"        "читамо" 	
+    lin read_V2 = mkV2 "читати" ;
 	lin break_V2 = mkV2 "сломити" ;
 	lin buy_V2 = mkV2 "купити" ;
 	lin drink_V2 = mkV2 "пити" ;
