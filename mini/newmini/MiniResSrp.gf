@@ -1,5 +1,7 @@
 resource MiniResSrp = open Prelude in {
 
+  flags coding=utf8 ;
+
   param
     Gender = Masc | Fem ;
     Number = Sg | Pl ;
@@ -14,8 +16,8 @@ resource MiniResSrp = open Prelude in {
   oper
     genNumStr : Type = Gender => Number => Str ;
     
-    ---
-    -- Noun
+    ------------------
+    -- Noun ----------
     NP = {
       s : Case => {clit,obj : Str ; isClit : Bool} ;
       a : Agreement
@@ -23,47 +25,63 @@ resource MiniResSrp = open Prelude in {
 
     Noun : Type = {s : Number => Str ; g : Gender} ;
 
-    mkNoun : Str -> Str -> Gender -> Noun = \sg,pl,g -> {
-      s = table {Sg => sg ; Pl => pl} ;
+    mkNoun : Str -> Str -> Gender -> Noun = \sg, pl, g -> {
+      s = table {
+        Sg => sg ; 
+        Pl => pl
+        } ;
       g = g
       } ;
 
-    regNoun : Str -> Gender -> Noun = \sg,g -> mkNoun sg (sg + "s") g;
+    --        (Singular Nouns)              ()
+    regNoun : Str -> Gender -> Noun = \sg,  g -> mkNoun sg (sg + "и") g;
 
-    -- smart paradigms
-    smartGenNoun : Str -> Gender -> Noun = \vinho,g -> case vinho of {
-      rapa + z@("z"|"r"|"s")           =>
-        mkNoun vinho (vinho + "es") g ; -- rapaz/Masc, flor/Fem
-      can  + v@("a"|"e"|"o"|"u") + "l" =>
-        mkNoun vinho (can + v + "is") g ; -- canal/Masc, vogal/Fem
-      home  + "m"  => mkNoun vinho (home + "ns") g ; -- homem/Masc,
-                                                     -- nuvem/nuvens
-      tóra + "x"                       =>
-        mkNoun vinho vinho g ; -- tórax/Masc, xerox/Fem
-      _                                =>
-        regNoun vinho g
+    -- Plural Nouns (Nominative Case)
+    smartGenNoun : Str -> Gender -> Noun = \stem, g -> case stem of {
+      stem1 + v@("а")      => mkNoun  stem  (stem1  +     "е")    g ; -- јабука -> јабуке
+      stem2 + v@("о"|"е")  => mkNoun  stem  (stem2  +     "а")    g ; -- пиво   -> пива,   море     -> мора
+      stem3 + v@("к"|"ац") => mkNoun  stem  (stem3  +     "ци")   g ; -- дечак  -> дечаци, мушкарац -> мушкарци
+      stem4 + v@("да")     => mkNoun  stem  (stem4  +     "дице") g ; -- звезда -> звездаце
+      stem5 + v@("л")      => mkNoun  stem  (stem5  + v + "е")    g ; -- бицикл -> бицикле
+      stem6 + v@("д")      => mkNoun  stem  (stem6  + v + "ова")  g ; -- брод   -> бродова
+      stem7 + v@("з")      => mkNoun  stem  (stem7  + v + "ови")  g ; -- воз    -> возови
+      _                    => regNoun stem g -- everything else 
       } ;
 
+
+    -- TODO: What is this?
     smartNoun : Str -> Noun = \vinho -> case vinho of {
-      cas   + "a"  => regNoun vinho Fem ;
-      vinh  + "o"  => regNoun vinho Masc ;
-      falc  + "ão" =>
-        mkNoun vinho (falc + "ões") Masc ; -- other rules depend on
-                                           -- stress, can this be
-                                           -- built with gf?
-      artes + "ã"  => regNoun vinho Fem ;
-      líque + "n"  => regNoun vinho Masc ;
-      obu  + "s"   => mkNoun vinho (vinho + "es") Masc ;
-      can  + "il"  =>
-        mkNoun vinho (can + "is") Masc ; -- what about fóssil?
+      cas   + "Xa"  => regNoun vinho Fem ;
+      vinh  + "Xo"  => regNoun vinho Masc ;
+      falc  + "Xão" => mkNoun vinho (falc + "Xões") Masc ; -- other rules depend on stress, can this be built with gf?
+      artes + "Xã"  => regNoun vinho Fem ;
+      líque + "Xn"  => regNoun vinho Masc ;
+      obu   + "X2s"  => mkNoun vinho (vinho + "Xes") Masc ;
+      can   + "Xil" =>
+        mkNoun vinho (can + "Xis") Masc ; -- what about fóssil?
       _           => smartGenNoun vinho Masc
       } ;
+
+
+    -- smartNoun : Str -> Noun = \vinho -> case vinho of {
+    --   cas   + "a"  => regNoun vinho Fem ;
+    --   vinh  + "o"  => regNoun vinho Masc ;
+    --   falc  + "ão" => mkNoun vinho (falc + "ões") Masc ; -- other rules depend on stress, can this be built with gf?
+    --   artes + "ã"  => regNoun vinho Fem ;
+    --   líque + "n"  => regNoun vinho Masc ;
+    --   obu   + "2s"  => mkNoun vinho (vinho + "es") Masc ;
+    --   can   + "il" =>
+    --     mkNoun vinho (can + "is") Masc ; -- what about fóssil?
+    --   _           => smartGenNoun vinho Masc
+    --   } ;
 
     mkN = overload {
       mkN : Str -> Noun                     = smartNoun ;
       mkN : Str -> Gender -> Noun           = smartGenNoun ;
       mkN : Str -> Str    -> Gender -> Noun = mkNoun ;
       } ;
+    --- Nouns ----
+
 
     ProperName : Type = {s : Str ; g : Gender} ;
 
@@ -180,6 +198,7 @@ resource MiniResSrp = open Prelude in {
       } ;
 
     smartVerb : Str -> Verb = \inf -> case inf of {
+    -- stem   inf+suffix                   1st P Sing  2nd P Sing
       part + v@("ати")       => mkVerb inf (part+"ам") (part+"аш") (part+"а") (part+"амо") (part+v+"ате") (part+"ају") ;
       part + v@("ети"|"ити") => mkVerb inf (part+"им") (part+"иш") (part+"и") (part+"имо") (part+v+"ите") (part+"е") ;
       _ => mkVerb inf inf inf inf inf inf inf
