@@ -33,10 +33,10 @@ resource MiniResSrp = open Prelude in {
       g = g
       } ;
 
-    --        (Singular Nouns)              ()
+    -- Pluralize Regular Nouns (Nominative Case)
     regNoun : Str -> Gender -> Noun = \sg,  g -> mkNoun sg (sg + "и") g;
 
-    -- Plural Nouns (Nominative Case)
+    -- Pluralize Irregular Nouns (Nominative Case)
     smartGenNoun : Str -> Gender -> Noun = \stem, g -> case stem of {
       stem1 + v@("а")      => mkNoun  stem  (stem1  +     "е")    g ; -- јабука -> јабуке
       stem2 + v@("о"|"е")  => mkNoun  stem  (stem2  +     "а")    g ; -- пиво   -> пива,   море     -> мора
@@ -51,15 +51,14 @@ resource MiniResSrp = open Prelude in {
 
     -- TODO: What is this?
     smartNoun : Str -> Noun = \vinho -> case vinho of {
-      cas   + "Xa"  => regNoun vinho Fem ;
+      cas   + "Xa"  => regNoun vinho Fem  ;
       vinh  + "Xo"  => regNoun vinho Masc ;
-      falc  + "Xão" => mkNoun vinho (falc + "Xões") Masc ; -- other rules depend on stress, can this be built with gf?
-      artes + "Xã"  => regNoun vinho Fem ;
+      artes + "Xã"  => regNoun vinho Fem  ;
       líque + "Xn"  => regNoun vinho Masc ;
-      obu   + "X2s"  => mkNoun vinho (vinho + "Xes") Masc ;
-      can   + "Xil" =>
-        mkNoun vinho (can + "Xis") Masc ; -- what about fóssil?
-      _           => smartGenNoun vinho Masc
+      falc  + "Xão" => mkNoun  vinho (falc  + "Xões") Masc ; -- other rules depend on stress, can this be built with gf?
+      obu   + "X2s" => mkNoun  vinho (vinho + "Xes")  Masc ;
+      can   + "Xil" => mkNoun  vinho (can   + "Xis") Masc ; -- what about fóssil?
+      _             => smartGenNoun vinho Masc
       } ;
 
 
@@ -201,7 +200,7 @@ resource MiniResSrp = open Prelude in {
     -- stem   inf+suffix                   1st P Sing  2nd P Sing
       part + v@("ати")       => mkVerb inf (part+"ам") (part+"аш") (part+"а") (part+"амо") (part+v+"ате") (part+"ају") ;
       part + v@("ети"|"ити") => mkVerb inf (part+"им") (part+"иш") (part+"и") (part+"имо") (part+v+"ите") (part+"е") ;
-      _ => mkVerb inf inf inf inf inf inf inf
+      _                      => mkVerb inf inf inf inf inf inf inf
       } ;
 
     mkV = overload {
@@ -212,22 +211,15 @@ resource MiniResSrp = open Prelude in {
     Verb2 : Type = Verb ** {c : Case ; p : Str} ;
 
     mkV2 = overload {
-      mkV2 : Str -> Verb2 =
-        \s   -> mkV s ** {c = Nom ; p = []} ;
-      mkV2 : Str -> Case -> Verb2 =
-        \s,c -> mkV s ** {c = c ; p = []} ;
-      mkV2 : Str -> Str -> Verb2 =
-        \s,p -> mkV s ** {c = Nom ; p = p} ;
-      mkV2 : Str  -> Case -> Str -> Verb2 =
-        \s,c,p -> mkV s ** {c = c ; p = p} ;
-      mkV2 : Verb -> Verb2 =
-        \v -> v ** {c = Nom ; p = []} ;
-      mkV2 : Verb -> Case -> Verb2 =
-        \v,c -> v ** {c = c ; p = []} ;
-      mkV2 : Verb -> Str -> Verb2 =
-        \v,p -> v ** {c = Nom ; p = p} ;
-      mkV2 : Verb -> Case -> Str -> Verb2 =
-        \v,c,p -> v ** {c = c ; p = p} ;
+      mkV2 : Str  ->                Verb2 = \s     -> mkV s ** {c = Nom ; p = []} ;
+      mkV2 : Str  ->         Str -> Verb2 = \s,p   -> mkV s ** {c = Nom ; p = p} ;
+      mkV2 : Str  -> Case ->        Verb2 = \s,c   -> mkV s ** {c = c   ; p = []} ;
+      mkV2 : Str  -> Case -> Str -> Verb2 = \s,c,p -> mkV s ** {c = c   ; p = p} ;
+
+      mkV2 : Verb ->                Verb2 = \v     ->     v ** {c = Nom ; p = []} ;
+      mkV2 : Verb ->         Str -> Verb2 = \v,p   ->     v ** {c = Nom ; p = p} ;
+      mkV2 : Verb -> Case ->        Verb2 = \v,c   ->     v ** {c = c   ; p = []} ;
+      mkV2 : Verb -> Case -> Str -> Verb2 = \v,c,p ->     v ** {c = c   ; p = p} ;
       } ;
 
     ---

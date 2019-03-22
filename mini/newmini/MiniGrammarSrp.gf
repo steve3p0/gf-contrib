@@ -38,6 +38,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
       in {
         s = \\b => subj ++ clit ++ neg b ++ verb ++ obj
       } ;
+    
     -- Verb
     UseV v = {
       verb = v ;
@@ -45,6 +46,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
       clitAgr = CAgrNo ;
       compl = \\_ => []
       } ;
+    
     ComplV2 v2 np = let nps = np.s ! v2.c in {
       verb = {s = v2.s} ;
       clit = nps.clit ;
@@ -54,6 +56,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
         } ;
       compl = \\_ => v2.p ++ nps.obj
       } ;
+    
     AdvVP vp adv = vp ** {compl = \\agr => vp.compl ! agr ++ adv.s } ;
     UseAP ap = {
       verb = biti_V;
