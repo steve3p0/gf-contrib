@@ -7,10 +7,13 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
     VP = MiniResSrp.VP ;
     Adv = Adverb ;
     NP = MiniResSrp.NP ;
-    Det = {s : Gender => Case => Str ; n : Number} ;
     Conj = {s : Str} ;
-    Prep = {s : Str} ;
-    --Prep = MiniResSrp.Prep;
+    
+    -- Det
+    Det = {s : Gender => Case => Str ; n : Number} ;
+    --Prep = {s : Str} ;
+    Prep = MiniResSrp.Prep;
+    
     AP = Adjective ;
     CN = Noun ;
     V = Verb ;
@@ -19,6 +22,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
     N = Noun ;
     PN = ProperName ;
     Pron = MiniResSrp.Pron ;
+
   lin
     -- Phrase
     UttS s = s ;
@@ -63,6 +67,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
     UseN n = n ;
     PositA a = a ;
     
+    --PrepNP
     PrepNP prep np = case np.a of {
       Agr g n _ => {s = prep.s ! g ! n ++ employNP Nom np}
       } ;
@@ -77,6 +82,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
       a = Agr cn.g Sg Per3
       } ;
     
+    --DetCN
     DetCN det cn = {
       s = \\c => {clit = [] ;
                   obj = det.s ! cn.g ! c ++ cn.s ! det.n ;
@@ -84,6 +90,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
         } ;
       a = Agr cn.g det.n Per3 ;
       } ;
+
     UsePN pn = {
       s = \\_ => {clit = [] ; obj = pn.s ; isClit = False} ;
       a = Agr pn.g Sg Per3
@@ -124,26 +131,39 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
     -- Det
     -- TO DO: NO DET
 
-    a_Det = {s = "" ; n = Sg} ;
-    aPl_Det = {s = "" ; n = Pl} ;
-    the_Det = {s = "" ; n = Sg} ;
-    thePl_Det = {s = "" ; n = Pl} ;
+    -- a_Det = {s = "" ; n = Sg} ;
+    -- aPl_Det = {s = "" ; n = Pl} ;
+    -- the_Det = {s = "" ; n = Sg} ;
+    -- thePl_Det = {s = "" ; n = Pl} ;
     --every_Det = {s = "сваки" ; n = Sg} ;
 
     -- TO DO: Need masc / fem
-    --every_Det = {s = "сваки" ; n = Sg} ;
-    every_Det = adjDet (mkAdjective "сваки" "свака" [] [] True) Sg ;
-
-    -- a_Det     = adjDet (mkAdjective "um" "uma" [] [] True) Sg ;
-    -- aPl_Det   = adjDet (mkAdjective [] [] "uns" "umas" True) Pl ;
-    -- the_Det   = adjDet (mkAdjective "o" "a" [] [] True) Sg ;
-    -- thePl_Det = adjDet (mkAdjective [] [] "os" "as" True) Pl ;
-    -- every_Det = adjDet (mkAdjective "todo" "toda" [] [] True) Sg ;
-
+    -- Det
+    a_Det     = adjDet (mkAdjective "um" "uma" [] [] True) Sg ;
+    aPl_Det   = adjDet (mkAdjective [] [] "uns" "umas" True) Pl ;
+    the_Det   = adjDet (mkAdjective "o" "a" [] [] True) Sg ;
+    thePl_Det = adjDet (mkAdjective [] [] "os" "as" True) Pl ;
+    every_Det = adjDet (mkAdjective "todo" "toda" [] [] True) Sg ;
     -- Prep
-    in_Prep = {s = "у"} ;
-    on_Prep = {s = "на"} ;
-    with_Prep = {s = "са"} ;
+    in_Prep = no_Prep ;
+    on_Prep = no_Prep ;
+    with_Prep = {s = \\_ => \\_ => "com"} ;
+
+
+
+    --every_Det = {s = "сваки" ; n = Sg} ;
+    -- every_Det = adjDet (mkAdjective "сваки" "свака" [] [] True) Sg ;
+
+    -- -- a_Det     = adjDet (mkAdjective "um" "uma" [] [] True) Sg ;
+    -- -- aPl_Det   = adjDet (mkAdjective [] [] "uns" "umas" True) Pl ;
+    -- -- the_Det   = adjDet (mkAdjective "o" "a" [] [] True) Sg ;
+    -- -- thePl_Det = adjDet (mkAdjective [] [] "os" "as" True) Pl ;
+    -- -- every_Det = adjDet (mkAdjective "todo" "toda" [] [] True) Sg ;
+
+    -- -- Prep
+    -- in_Prep = {s = "у"} ;
+    -- on_Prep = {s = "на"} ;
+    -- with_Prep = {s = "са"} ;
 
     -- Conjunction/Disjunction
     CoordS conj a b = {s = a.s ++ conj.s ++ b.s} ;
