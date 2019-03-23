@@ -24,7 +24,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
     Pron = MiniResSrp.Pron ;
 
   lin
-    -- Phrase
+    -- Phrase ------------------------------------------
     UttS s = s ;
     UttNP np = ss (employNP Nom np) ;
     -- Sentence
@@ -39,7 +39,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
         s = \\b => subj ++ clit ++ neg b ++ verb ++ obj
       } ;
     
-    -- Verb
+    -- Verb ---------------------------------------------
     UseV v = {
       verb = v ;
       clit = [] ;
@@ -66,7 +66,8 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
         Agr g n _ => ap.s ! g ! n
         }
       } ;
-    -- Noun, CN, NP
+
+    -- Noun, CN, NP ------------------------------------------------
     UseN n = n ;
     PositA a = a ;
     
@@ -98,6 +99,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
       s = \\_ => {clit = [] ; obj = pn.s ; isClit = False} ;
       a = Agr pn.g Sg Per3
       } ;
+
     -- Pron
     UsePron p = {
       s = table {
@@ -110,6 +112,7 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
         } ;
       a = p.a
       } ;
+
     i_Pron = iMasc_Pron | genderPron Fem iMasc_Pron ;
     youSg_Pron = youMascSg_Pron | genderPron Fem youMascSg_Pron ;
     
@@ -142,11 +145,11 @@ concrete MiniGrammarSrp of MiniGrammar = open MiniResSrp, Prelude in {
 
     -- TO DO: Need masc / fem
     -- Det
-    a_Det     = adjDet (mkAdjective "um" "uma" [] [] True) Sg ;
-    aPl_Det   = adjDet (mkAdjective [] [] "uns" "umas" True) Pl ;
-    the_Det   = adjDet (mkAdjective "o" "a" [] [] True) Sg ;
-    thePl_Det = adjDet (mkAdjective [] [] "os" "as" True) Pl ;
-    every_Det = adjDet (mkAdjective "todo" "toda" [] [] True) Sg ;
+    a_Det     = adjDet (mkAdjective "" "" [] [] True) Sg ;
+    aPl_Det   = adjDet (mkAdjective [] [] "" "" True) Pl ;
+    the_Det   = adjDet (mkAdjective "" "" [] [] True) Sg ;
+    thePl_Det = adjDet (mkAdjective [] [] "" "" True) Pl ;
+    every_Det = adjDet (mkAdjective "сваки" "свака" [] [] True) Sg ;
     -- Prep
     in_Prep = no_Prep ;
     on_Prep = no_Prep ;
