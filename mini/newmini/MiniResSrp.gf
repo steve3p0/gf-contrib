@@ -231,11 +231,24 @@ resource MiniResSrp = open Prelude in {
     ---
     -- Det
     -- [ ] is this ok por port?
+    -- zeroDet : Adjective -> Number -> {s : Gender => Case => Str ; n : Number} =
+    --   \adj,n -> {
+    --     s = \\g, c => adj.s ! g ! n ;
+    --     n = n
+    --   } ;
+
+
     adjDet : Adjective -> Number -> {s : Gender => Case => Str ; n : Number} =
       \adj,n -> {
         s = \\g,c => adj.s ! g ! n ;
         n = n
       } ;
+
+    -- adjDet = overload {
+    --   adjDet : Str -> {s : Str} = \s -> {s = s}  ;
+    --   adjDet : Adjective -> Number -> {s : Gender => Case => Str ; n : Number} = adjDet 
+    --   } ;
+
     ---
     -- Prep
     Prep : Type = {s : genNumStr } ;
