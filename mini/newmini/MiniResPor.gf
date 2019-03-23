@@ -31,38 +31,29 @@ resource MiniResPor = open Prelude in {
     regNoun : Str -> Gender -> Noun = \sg,g -> mkNoun sg (sg + "s") g;
 
     -- smart paradigms
-    smartGenNoun : Str -> Gender -> Noun = \vinho,g -> case vinho of {
-      rapa + z@("z"|"r"|"s")           =>
-        mkNoun vinho (vinho + "es") g ; -- rapaz/Masc, flor/Fem
-      can  + v@("a"|"e"|"o"|"u") + "l" =>
-        mkNoun vinho (can + v + "is") g ; -- canal/Masc, vogal/Fem
-      home  + "m"  => mkNoun vinho (home + "ns") g ; -- homem/Masc,
-                                                     -- nuvem/nuvens
-      tóra + "x"                       =>
-        mkNoun vinho vinho g ; -- tórax/Masc, xerox/Fem
-      _                                =>
-        regNoun vinho g
+    smartGenNoun : Str -> Gender -> Noun = \vinho, g -> case vinho of {
+      rapa  + z@("z"|"r"|"s")           => mkNoun  vinho (vinho     + "es") g ; -- rapaz/Masc, flor/Fem
+      can   + v@("a"|"e"|"o"|"u") + "l" => mkNoun  vinho (can   + v + "is") g ; -- canal/Masc, vogal/Fem
+      home                        + "m" => mkNoun  vinho (home      + "ns") g ; -- homem/Masc, -- nuvem/nuvens
+      tóra                        + "x" => mkNoun  vinho vinho g ; -- tórax/Masc, xerox/Fem
+      _                                 => regNoun vinho g
       } ;
 
     smartNoun : Str -> Noun = \vinho -> case vinho of {
-      cas   + "a"  => regNoun vinho Fem ;
+      cas   + "a"  => regNoun vinho Fem  ;
       vinh  + "o"  => regNoun vinho Masc ;
-      falc  + "ão" =>
-        mkNoun vinho (falc + "ões") Masc ; -- other rules depend on
-                                           -- stress, can this be
-                                           -- built with gf?
-      artes + "ã"  => regNoun vinho Fem ;
+      artes + "ã"  => regNoun vinho Fem  ;
       líque + "n"  => regNoun vinho Masc ;
-      obu  + "s"   => mkNoun vinho (vinho + "es") Masc ;
-      can  + "il"  =>
-        mkNoun vinho (can + "is") Masc ; -- what about fóssil?
-      _           => smartGenNoun vinho Masc
+      falc  + "ão" => mkNoun  vinho (falc  + "ões") Masc ; -- other rules depend on stress, can this be built with gf?
+      obu   + "s"  => mkNoun  vinho (vinho + "es")  Masc ;
+      can   + "il" => mkNoun  vinho (can   + "is")  Masc ; -- what about fóssil?
+      _            => smartGenNoun vinho Masc
       } ;
 
     mkN = overload {
-      mkN : Str -> Noun                     = smartNoun ;
-      mkN : Str -> Gender -> Noun           = smartGenNoun ;
-      mkN : Str -> Str    -> Gender -> Noun = mkNoun ;
+      mkN : Str ->                  Noun = smartNoun ;
+      mkN : Str ->        Gender -> Noun = smartGenNoun ;
+      mkN : Str -> Str -> Gender -> Noun = mkNoun ;
       } ;
 
     ProperName : Type = {s : Str ; g : Gender} ;
@@ -183,22 +174,14 @@ resource MiniResPor = open Prelude in {
     Verb2 : Type = Verb ** {c : Case ; p : Str} ;
 
     mkV2 = overload {
-      mkV2 : Str -> Verb2 =
-        \s   -> mkV s ** {c = Nom ; p = []} ;
-      mkV2 : Str -> Case -> Verb2 =
-        \s,c -> mkV s ** {c = c ; p = []} ;
-      mkV2 : Str -> Str -> Verb2 =
-        \s,p -> mkV s ** {c = Nom ; p = p} ;
-      mkV2 : Str  -> Case -> Str -> Verb2 =
-        \s,c,p -> mkV s ** {c = c ; p = p} ;
-      mkV2 : Verb -> Verb2 =
-        \v -> v ** {c = Nom ; p = []} ;
-      mkV2 : Verb -> Case -> Verb2 =
-        \v,c -> v ** {c = c ; p = []} ;
-      mkV2 : Verb -> Str -> Verb2 =
-        \v,p -> v ** {c = Nom ; p = p} ;
-      mkV2 : Verb -> Case -> Str -> Verb2 =
-        \v,c,p -> v ** {c = c ; p = p} ;
+      mkV2 : Str  ->                Verb2 = \s     -> mkV s ** {c = Nom ; p = []} ;
+      mkV2 : Str  -> Case ->        Verb2 = \s,c   -> mkV s ** {c = c   ; p = []} ;
+      mkV2 : Str  ->         Str -> Verb2 = \s,p   -> mkV s ** {c = Nom ; p = p} ;
+      mkV2 : Str  -> Case -> Str -> Verb2 = \s,c,p -> mkV s ** {c = c   ; p = p} ;
+      mkV2 : Verb ->                Verb2 = \v     ->     v ** {c = Nom ; p = []} ;
+      mkV2 : Verb -> Case ->        Verb2 = \v,c   ->     v ** {c = c   ; p = []} ;
+      mkV2 : Verb ->         Str -> Verb2 = \v,p   ->     v ** {c = Nom ; p = p} ;
+      mkV2 : Verb -> Case -> Str -> Verb2 = \v,c,p ->     v ** {c = c   ; p = p} ;
       } ;
 
     ---

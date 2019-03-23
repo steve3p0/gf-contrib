@@ -197,9 +197,10 @@ resource MiniResSrp = open Prelude in {
       } ;
 
     smartVerb : Str -> Verb = \inf -> case inf of {
-    -- stem   inf+suffix                   1st P Sing  2nd P Sing
-      part + v@("ати")       => mkVerb inf (part+"ам") (part+"аш") (part+"а") (part+"амо") (part+v+"ате") (part+"ају") ;
-      part + v@("ети"|"ити") => mkVerb inf (part+"им") (part+"иш") (part+"и") (part+"имо") (part+v+"ите") (part+"е") ;
+    -- stem   inf+suffix                   1st P Sing  2nd P Sing   
+      stem + v@("мети")      => mkVerb inf (stem+"мем") (stem+"меш") (stem+"ме") (stem+"мемо") (stem+v+"мете") (stem+"меју") ; 
+      stem + v@("ати")       => mkVerb inf (stem+"ам")  (stem+"аш")  (stem+"а")  (stem+"амо")  (stem+v+"ате")  (stem+"ају") ;
+      stem + v@("ети"|"ити") => mkVerb inf (stem+"им")  (stem+"иш")  (stem+"и")  (stem+"имо")  (stem+v+"ите")  (stem+"е") ;
       _                      => mkVerb inf inf inf inf inf inf inf
       } ;
 
@@ -240,7 +241,7 @@ resource MiniResSrp = open Prelude in {
 
     adjDet : Adjective -> Number -> {s : Gender => Case => Str ; n : Number} =
       \adj,n -> {
-        s = \\g,c => adj.s ! g ! n ;
+        s = \\g, c => adj.s ! g ! n ;
         n = n
       } ;
 
